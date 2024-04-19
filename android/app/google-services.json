@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "808966008918",
+    "project_id": "classflow-21b73",
+    "storage_bucket": "classflow-21b73.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:808966008918:android:6e336c71f4459c50210bf7",
+        "android_client_info": {
+          "package_name": "com.example.social_media_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "808966008918-egl3u5l394efeofab9bk40gmtnf3g58h.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBSj5Rvlh7se-AMP5qxFp0Y-r8YIl0K9pQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "808966008918-egl3u5l394efeofab9bk40gmtnf3g58h.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
