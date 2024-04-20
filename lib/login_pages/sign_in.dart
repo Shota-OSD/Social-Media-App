@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
 class SignInScreen extends StatefulWidget {
   final Function(String, String) onSignIn;
@@ -29,121 +30,169 @@ class _SignInScreenState extends State<SignInScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Sign In'),
-        leading: const Text(''),
+        surfaceTintColor: Colors.white,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextField(
-              controller: emailController,
-              decoration: const InputDecoration(
-                labelText: 'Email',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 16.0),
-            TextField(
-              controller: passwordController,
-              decoration: const InputDecoration(
-                labelText: 'Password',
-                border: OutlineInputBorder(),
-              ),
-              obscureText: true,
-            ),
-            const SizedBox(height: 16.0),
-            if (isSigningUp) //show First Name and Last Name fields if signing up
-              Column(
-                children: [
-                  TextField(
-                    controller: firstNameController,
-                    decoration: const InputDecoration(
-                      labelText: 'First Name',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  const SizedBox(height: 16.0),
-                  TextField(
-                    controller: lastNameController,
-                    decoration: const InputDecoration(
-                      labelText: 'Last Name',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 16.0,
-                  ),
-                  TextField(
-                    controller: dobController,
-                    decoration: const InputDecoration(
-                        labelText: 'Date of Birth',
-                        border: OutlineInputBorder(),
-                        hintText: 'mm/dd/yyyy'),
-                  ),
-                  const SizedBox(
-                    height: 16.0,
-                  ),
-                  DropdownButtonFormField<String>(
-                    value: selectedGender,
-                    onChanged: (value) {
-                      setState(() {
-                        selectedGender = value!;
-                      });
-                    },
-                    items: ['Male', 'Female', 'Other']
-                        .map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                          value: value, child: Text(value));
-                    }).toList(),
-                    decoration: const InputDecoration(
-                      labelText: 'Gender',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                ],
-              ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      backgroundColor: Colors.white,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                if (!isSigningUp)
-                  ElevatedButton(
-                    onPressed: () {
-                      widget.onSignIn(
-                        emailController.text,
-                        passwordController.text,
-                      );
-                    },
-                    child: const Text('Sign In'),
-                  ),
-                ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      isSigningUp = !isSigningUp;
-                    });
-                  },
-                  child: Text(isSigningUp ? 'Cancel' : 'Register'),
+                const Text(
+                  'Welcome to ClassFlow!',
+                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                 ),
-                if (isSigningUp) // Show Register button only when signing up
-                  ElevatedButton(
-                    onPressed: () {
-                      // Call onSignUp callback with email, password, first name, and last name
-                      widget.onSignUp(
-                          emailController.text,
-                          passwordController.text,
-                          firstNameController.text,
-                          lastNameController.text,
-                          dobController.text,
-                          selectedGender);
-                    },
-                    child: const Text('Confirm'),
+                const SizedBox(
+                  height: 20,
+                ),
+                Image.asset(
+                  'assets/images/plane.jpg',
+                  height: 200,
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                const Text(
+                  'Sign in or sign up below to get started',
+                  style: TextStyle(color: Colors.grey),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: emailController,
+                  decoration: InputDecoration(
+                    labelText: 'Email',
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15)),
                   ),
+                ),
+                const SizedBox(height: 16.0),
+                TextField(
+                  controller: passwordController,
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15)),
+                  ),
+                  obscureText: true,
+                ),
+                const SizedBox(height: 16.0),
+                if (isSigningUp) SignUpOptions(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    if (!isSigningUp)
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.deepOrange[100],
+                            surfaceTintColor: Colors.deepOrange[100],
+                            foregroundColor: Colors.deepOrange[100]),
+                        onPressed: () {
+                          widget.onSignIn(
+                            emailController.text,
+                            passwordController.text,
+                          );
+                        },
+                        child: const Text(
+                          'Sign In',
+                          style: TextStyle(color: Colors.black),
+                        ),
+                      ),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.deepOrange[100],
+                          surfaceTintColor: Colors.deepOrange[100],
+                          foregroundColor: Colors.deepOrange[100],
+                          shadowColor: Colors.red),
+                      onPressed: () {
+                        setState(() {
+                          isSigningUp = !isSigningUp;
+                        });
+                      },
+                      child: Text(
+                        isSigningUp ? 'Cancel' : 'Register',
+                        style: TextStyle(color: Colors.black),
+                      ),
+                    ),
+                    if (isSigningUp) // Show Register button only when signing up
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.deepOrange[100],
+                            surfaceTintColor: Colors.deepOrange[100],
+                            foregroundColor: Colors.deepOrange[100]),
+                        onPressed: () {
+                          // Call onSignUp callback with email, password, first name, and last name
+                          widget.onSignUp(
+                              emailController.text,
+                              passwordController.text,
+                              firstNameController.text,
+                              lastNameController.text,
+                              dobController.text,
+                              selectedGender);
+                        },
+                        child: const Text('Confirm',
+                            style: TextStyle(color: Colors.black)),
+                      ),
+                  ],
+                ),
               ],
             ),
-          ],
+          ),
         ),
       ),
+    );
+  }
+
+  Column SignUpOptions() {
+    return Column(
+      children: [
+        TextField(
+          controller: firstNameController,
+          decoration: InputDecoration(
+            labelText: 'First Name',
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
+          ),
+        ),
+        const SizedBox(height: 16.0),
+        TextField(
+          controller: lastNameController,
+          decoration: InputDecoration(
+            labelText: 'Last Name',
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
+          ),
+        ),
+        const SizedBox(
+          height: 16.0,
+        ),
+        TextField(
+          controller: dobController,
+          decoration: InputDecoration(
+              labelText: 'Date of Birth',
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
+              hintText: 'mm/dd/yyyy'),
+        ),
+        const SizedBox(
+          height: 16.0,
+        ),
+        DropdownButtonFormField<String>(
+          value: selectedGender,
+          onChanged: (value) {
+            setState(() {
+              selectedGender = value!;
+            });
+          },
+          items: ['Male', 'Female', 'Other']
+              .map<DropdownMenuItem<String>>((String value) {
+            return DropdownMenuItem<String>(value: value, child: Text(value));
+          }).toList(),
+          decoration: const InputDecoration(
+            labelText: 'Gender',
+            border: OutlineInputBorder(),
+          ),
+        ),
+      ],
     );
   }
 }
