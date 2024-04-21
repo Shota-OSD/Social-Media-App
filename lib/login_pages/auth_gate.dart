@@ -1,9 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:social_media_app/home_screen.dart';
+import 'package:social_media_app/main_pages/home_screen.dart';
 import '../index.dart';
-
 
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key});
@@ -19,7 +18,8 @@ class AuthGate extends StatelessWidget {
               FirebaseAuth.instance
                   .signInWithEmailAndPassword(email: email, password: password);
             },
-            onSignUp: (email, password, firstName, lastName, dob, selectedGender) {
+            onSignUp:
+                (email, password, firstName, lastName, dob, selectedGender) {
               FirebaseAuth.instance
                   .createUserWithEmailAndPassword(
                       email: email, password: password)
@@ -41,7 +41,7 @@ class AuthGate extends StatelessWidget {
           );
         }
 
-        return const ClassFlowHome();
+        return const AppTabs();
       },
     );
   }
