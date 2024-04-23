@@ -5,22 +5,23 @@ import 'package:social_media_app/main_pages/home_screen.dart';
 import '../index.dart';
 
 class AuthGate extends StatelessWidget {
-  const AuthGate({super.key});
+  AuthGate({super.key});
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<User?>(
-      stream: FirebaseAuth.instance.authStateChanges(),
+      stream: _auth.authStateChanges(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return SignInScreen(
             onSignIn: (email, password) {
-              FirebaseAuth.instance
-                  .signInWithEmailAndPassword(email: email, password: password);
+              _auth.signInWithEmailAndPassword(
+                  email: email, password: password);
             },
             onSignUp:
                 (email, password, firstName, lastName, dob, selectedGender) {
-              FirebaseAuth.instance
+              _auth
                   .createUserWithEmailAndPassword(
                       email: email, password: password)
                   .then((registerUser) => {
@@ -41,7 +42,7 @@ class AuthGate extends StatelessWidget {
           );
         }
 
-        return const AppTabs();
+        return AppTabs(auth: _auth);
       },
     );
   }

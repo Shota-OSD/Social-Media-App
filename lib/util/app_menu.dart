@@ -5,26 +5,32 @@ import '../main_pages/add_post_page.dart';
 import '../main_pages/friends_page.dart';
 import '../main_pages/home_screen.dart';
 import '../main_pages/profile_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 // global topics page, friends list page, add post page, profile page
 
 class AppTabs extends StatefulWidget {
-  const AppTabs({
-    super.key,
-  });
+  const AppTabs({Key? key, required this.auth}) : super(key: key);
+  final FirebaseAuth auth;
 
   @override
   State<AppTabs> createState() => _AppTabsState();
 }
 
 class _AppTabsState extends State<AppTabs> {
-  final List<Widget> _screens = const [
-    ClassFlowHome(),
-    AddPost(),
-    FriendsList(),
-    ProfilePage(),
-  ];
+  late final List<Widget> _screens;
   int _selectedIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _screens = [
+      ClassFlowHome(),
+      AddPost(),
+      FriendsList(auth: widget.auth),
+      ProfilePage(),
+    ];
+  }
 
   void _navigateBottomBar(index) {
     setState(() {
