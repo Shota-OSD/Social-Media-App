@@ -1,6 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../util/index.dart';
+import 'topic_posts_screen.dart';
 
 class ClassFlowHome extends StatefulWidget {
   const ClassFlowHome({super.key});
@@ -10,6 +12,29 @@ class ClassFlowHome extends StatefulWidget {
 }
 
 class _ClassFlowHomeState extends State<ClassFlowHome> {
+  List<String> topics = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchTopics();
+  }
+
+  Future<void> fetchTopics() async {
+    try {
+      QuerySnapshot querySnapshot =
+          await FirebaseFirestore.instance.collection('topics').get();
+
+      for (var doc in querySnapshot.docs) {
+        topics.add(doc.id);
+      }
+      print(topics);
+    } catch (e) {
+      // ignore: avoid_print
+      print('Error fetching topics: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return const SingleChildScrollView(
@@ -115,7 +140,12 @@ class TopicBoard extends StatelessWidget {
           const SizedBox(height: 24.0),
           ElevatedButton(
             onPressed: () {
-              // Implement action when button is pressed
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => TopicRoom(
+                            topicID: title,
+                          )));
             },
             style: ElevatedButton.styleFrom(
               padding:

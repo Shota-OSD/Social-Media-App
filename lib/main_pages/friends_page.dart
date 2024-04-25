@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import '../util/index.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FriendsList extends StatefulWidget {
@@ -200,8 +199,9 @@ class _FriendsList extends State<FriendsList> {
         onPressed: () {
           _addFriend();
         },
-        tooltip: 'Add Item',
-        child: Icon(Icons.add),
+        backgroundColor: Colors.red[100],
+        tooltip: 'Add Friend',
+        child: const Icon(Icons.add),
       ),
     );
   }
