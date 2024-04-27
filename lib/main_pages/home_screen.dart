@@ -1,7 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import '../util/index.dart';
 import 'topic_posts_screen.dart';
 
 class ClassFlowHome extends StatefulWidget {
@@ -77,6 +75,17 @@ class _ClassFlowHomeState extends State<ClassFlowHome> {
             description:
                 'Here you can find resources, discussions, and announcements related to english topics.',
             colorTheme: Colors.greenAccent,
+          ),
+          TopicBoard(
+            title: 'Art Topic Board',
+            description:
+                'Here you can share your art, and interact with others!',
+            colorTheme: Color.fromARGB(255, 224, 202, 0),
+          ),
+          TopicBoard(
+            title: 'General Board',
+            description: 'Here you can discuss any general topics!',
+            colorTheme: Colors.deepPurpleAccent,
           ),
         ])),
       ),

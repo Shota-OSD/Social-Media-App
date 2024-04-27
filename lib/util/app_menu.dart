@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
-
-import '../main_pages/add_post_page.dart';
 import '../main_pages/friends_page.dart';
 import '../main_pages/home_screen.dart';
 import '../main_pages/profile_page.dart';
@@ -10,7 +8,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 // global topics page, friends list page, add post page, profile page
 
 class AppTabs extends StatefulWidget {
-  const AppTabs({Key? key, required this.auth}) : super(key: key);
+  const AppTabs({super.key, required this.auth});
   final FirebaseAuth auth;
 
   @override
@@ -25,10 +23,9 @@ class _AppTabsState extends State<AppTabs> {
   void initState() {
     super.initState();
     _screens = [
-      ClassFlowHome(),
-      AddPost(),
+      const ClassFlowHome(),
       FriendsList(auth: widget.auth),
-      ProfilePage(),
+      const ProfilePage(),
     ];
   }
 
@@ -52,10 +49,6 @@ class _AppTabsState extends State<AppTabs> {
             GButton(
               icon: Icons.home,
               text: 'home',
-            ),
-            GButton(
-              icon: Icons.add,
-              text: 'add post',
             ),
             GButton(
               icon: Icons.people,

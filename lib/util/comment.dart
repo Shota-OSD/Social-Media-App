@@ -1,14 +1,14 @@
-class Message {
+class Comment {
   final String senderID;
   final String senderEmail;
-  final String roomID;
+  final String postID;
   final String message;
   final DateTime timestamp;
 
-  Message(
+  Comment(
       {required this.senderID,
       required this.senderEmail,
-      required this.roomID,
+      required this.postID,
       required this.message,
       required this.timestamp});
 
@@ -16,7 +16,7 @@ class Message {
     return {
       'senderID': senderID,
       'senderEmail': senderEmail,
-      'roomID': roomID,
+      'postID': postID,
       'message': message,
       'timestamp': timestamp
     };
