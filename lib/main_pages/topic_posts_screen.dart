@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:social_media_app/main_pages/components/like_button.dart';
 import 'package:social_media_app/util/chat_service.dart';
 import 'package:intl/intl.dart';
 
@@ -14,28 +16,48 @@ class TopicRoom extends StatefulWidget {
 
 class _TopicRoomState extends State<TopicRoom> {
   final ChatService _chatService = ChatService();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  late int? postLikes = 0;
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _contentController = TextEditingController();
   final TextEditingController _imageUrlController = TextEditingController();
 
+  //background colors based on topic
+  late Color? appBarColor;
+  late Color? topicColor;
   @override
   void initState() {
     super.initState();
+    topicTheme(widget.topicID);
+  }
+
+  void topicTheme(topicID) {
+    if (widget.topicID.contains('Math')) {
+      appBarColor = Colors.deepOrange;
+    } else if (widget.topicID.contains('Science')) {
+      appBarColor = Colors.lightBlue;
+    } else if (widget.topicID.contains('History')) {
+      appBarColor = Colors.brown;
+    } else {
+      appBarColor = Colors.lightGreenAccent;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[300],
+      backgroundColor: Colors.grey[100],
       appBar: AppBar(
         title: Text(widget.topicID),
+        backgroundColor: appBarColor,
       ),
+      floatingActionButton: ElevatedButton(
+          onPressed: _addPostForm, child: const Text('Add Post')),
       body: Column(
         children: [
           Expanded(
             child: _buildPostsList(),
           ),
-          ElevatedButton(onPressed: _addPostForm, child: const Text('Add Post'))
         ],
       ),
     );
@@ -117,6 +139,7 @@ class _TopicRoomState extends State<TopicRoom> {
       await _chatService.addPost(widget.topicID, _titleController.text,
           _contentController.text, _imageUrlController.text);
     }
+    // ignore: use_build_context_synchronously
     Navigator.of(context).pop();
 
     _titleController.clear();
@@ -132,71 +155,169 @@ class _TopicRoomState extends State<TopicRoom> {
             return Text('has error: ${snapshot.error}');
           }
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Text('loading');
+            return const Center(
+              child: Text(
+                'Loading...',
+                style: TextStyle(fontSize: 20),
+              ),
+            );
           }
-          return ListView(
-              children: snapshot.data!.docs
-                  .map((document) => _buildPostsItem(document))
-                  .toList());
+          return ListView.builder(
+              itemCount: snapshot.data!.docs.length,
+              itemBuilder: (context, index) {
+                final DocumentSnapshot document = snapshot.data!.docs[index];
+                return PostItem(
+                    document: document, likes: document['likes'] ?? []);
+              });
         });
   }
+}
 
-  Widget _buildPostsItem(DocumentSnapshot document) {
-    Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+class PostItem extends StatefulWidget {
+  final DocumentSnapshot document;
+  final List<dynamic> likes;
+  PostItem({required this.document, required this.likes});
 
+  @override
+  _PostItemState createState() => _PostItemState();
+}
+
+class _PostItemState extends State<PostItem> {
+  final user = FirebaseAuth.instance.currentUser!;
+  bool isLiked = false;
+
+  @override
+  void initState() {
+    super.initState();
+    isLiked = widget.likes.contains(user.uid);
+  }
+
+  void _likePost() {
+    print('tapped');
+    setState(() {
+      isLiked = !isLiked;
+    });
+
+    String topicID = widget.document.reference.parent.parent!.id;
+    String postID = widget.document.id;
+    DocumentReference postRef = FirebaseFirestore.instance
+        .collection('topics')
+        .doc(topicID)
+        .collection('posts')
+        .doc(postID);
+    if (isLiked) {
+      postRef.update({
+        'likes': FieldValue.arrayUnion([user.uid])
+      });
+    } else {
+      postRef.update({
+        'likes': FieldValue.arrayRemove([user.uid])
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Map<String, dynamic> data = widget.document.data() as Map<String, dynamic>;
     return FutureBuilder<String?>(
-      future: _chatService.getUserName(data['userID']),
+      future: ChatService().getUserName(data['userID']),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          // While the future is resolving, show a loading indicator
-          return CircularProgressIndicator();
+          return const CircularProgressIndicator();
         } else if (snapshot.hasError) {
-          // If there's an error with the future, display an error message
           return Text('Error fetching user name: ${snapshot.error}');
-        } else if (!snapshot.hasData || snapshot.data == null) {
-          // If no data was retrieved from the future, handle the case gracefully
-          return Text('User name not found');
         } else {
-          // If the future has completed successfully, display the user name
           String userName = snapshot.data!;
           DateTime timestamp = (data['timestamp'] as Timestamp).toDate();
           String formattedDateTime =
               DateFormat('dd/MM/yyyy HH:mm').format(timestamp);
 
-          return Center(
-            child: Padding(
-              padding: const EdgeInsets.all(10),
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Text(
-                        userName,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Text(
-                        'at: $formattedDateTime',
-                        style: TextStyle(
-                          color: Colors.grey[400],
-                          fontStyle: FontStyle.italic,
+          return Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              margin: const EdgeInsets.symmetric(vertical: 10),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(15),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.3),
+                    spreadRadius: 2,
+                    blurRadius: 4,
+                    offset: const Offset(0, 2), // changes position of shadow
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          backgroundColor: Colors.grey[300],
+                          // Add user avatar here if available
+                          child: Text(
+                            userName[0].toUpperCase(),
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                              color: Colors.grey[600],
+                            ),
+                          ),
                         ),
-                      ),
+                        const SizedBox(width: 10),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              userName,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              formattedDateTime,
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Text(data['content']),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Text(
+                      data['content'],
+                      style: const TextStyle(fontSize: 16),
                     ),
-                  ],
-                ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Row(
+                          children: [
+                            LikeButton(
+                                isLiked: isLiked,
+                                onTap: () {
+                                  _likePost();
+                                }),
+                            Text(widget.likes.length.toString())
+                          ],
+                        ),
+                        GestureDetector(child: Icon(Icons.chat))
+                      ],
+                    ),
+                  )
+                ],
               ),
             ),
           );

@@ -48,7 +48,7 @@ class _FriendsList extends State<FriendsList> {
                 height: 20,
               ),
               ElevatedButton(
-                child: Text('Search'),
+                child: const Text('Search'),
                 onPressed: () async {
                   final String? email = _nameController.text;
                   if (email != null) {

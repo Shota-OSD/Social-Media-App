@@ -5,14 +5,15 @@ class Post {
   final String content;
   final String? imageURL;
   final DateTime timestamp;
-
+  final List<String>? likes;
   Post(
       {required this.userID,
       required this.topicID,
       required this.title,
       required this.content,
       required this.imageURL,
-      required this.timestamp});
+      required this.timestamp,
+      required this.likes});
 
   Map<String, dynamic> toMap() {
     return {
@@ -21,7 +22,8 @@ class Post {
       'title': title,
       'content': content,
       'imageURL': imageURL,
-      'timestamp': timestamp
+      'timestamp': timestamp,
+      'likes': likes,
     };
   }
 }
