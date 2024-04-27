@@ -1,12 +1,14 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:social_media_app/util/post_service.dart';
 import 'post/post_item.dart';
 
 class TopicRoom extends StatefulWidget {
   final String topicID;
-  const TopicRoom({super.key, required this.topicID});
+  final FirebaseAuth auth;
+  const TopicRoom({super.key, required this.topicID, required this.auth});
 
   @override
   State<TopicRoom> createState() => _TopicRoomState();

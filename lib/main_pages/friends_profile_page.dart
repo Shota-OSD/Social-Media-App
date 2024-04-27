@@ -1,13 +1,10 @@
-import 'dart:io';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class FriendsProfilePage extends StatefulWidget {
-  const FriendsProfilePage({super.key, required this.auth, required this.email});
-  final FirebaseAuth auth;
-  final String email;
+  FriendsProfilePage({super.key, required this.userID});
+  final String userID;
 
   @override
   State<FriendsProfilePage> createState() => _FriendsProfilePage();
@@ -15,20 +12,45 @@ class FriendsProfilePage extends StatefulWidget {
 
 class _FriendsProfilePage extends State<FriendsProfilePage> {
   late final DocumentReference _friends;
-  File? _imageFile;
+  late final CollectionReference _CurrentUserFriends;
   String? profileImageUrl;
-  final TextEditingController _firstNameController = TextEditingController();
-  final TextEditingController _lastNameController = TextEditingController();
+  late bool _isFriend;
+  final user = FirebaseAuth.instance.currentUser!;
 
   @override
   void initState() {
     super.initState();
     _friends = FirebaseFirestore.instance
         .collection('usersCollection')
-        .doc(widget.auth.currentUser!.uid)
-        .collection('friends')
-        .doc(widget.email);
+        .doc(widget.userID);
+    _CurrentUserFriends = FirebaseFirestore.instance
+        .collection('usersCollection')
+        .doc(user.uid)
+        .collection('friends');
     fetchImageUrl();
+    _checkFriend();
+  }
+
+  Future<void> _checkFriend() async {
+    try {
+      DocumentSnapshot<Map<String, dynamic>> snapshotFromUsers =
+          await FirebaseFirestore.instance
+              .collection('usersCollection')
+              .doc(widget.userID)
+              .get();
+      String email = snapshotFromUsers.data()?['email'];
+      DocumentSnapshot snapshotFromFrends =
+          await _CurrentUserFriends.doc(email).get();
+      setState(() {
+        if (snapshotFromFrends.exists) {
+          _isFriend = true;
+        } else {
+          _isFriend = false;
+        }
+      });
+    } catch (error) {
+      print("Failed to get information URL: $error");
+    }
   }
 
   Future<void> fetchImageUrl() async {
@@ -36,9 +58,7 @@ class _FriendsProfilePage extends State<FriendsProfilePage> {
       DocumentSnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
           .instance
           .collection('usersCollection')
-          .doc(widget.auth.currentUser!.uid)
-          .collection('friends')
-          .doc(widget.email)
+          .doc(widget.userID)
           .get();
       setState(() {
         profileImageUrl = snapshot.data()?['profileImage'];
@@ -48,62 +68,69 @@ class _FriendsProfilePage extends State<FriendsProfilePage> {
     }
   }
 
-  Future<void> _editProfile(String userFirstName, String userLastName) async {
-    _firstNameController.text = userFirstName;
-    _lastNameController.text = userLastName;
-    await showModalBottomSheet(
-        isScrollControlled: true,
-        context: context,
-        builder: (BuildContext ctx) {
-          return Padding(
-              padding: EdgeInsets.only(
-                top: 20,
-                left: 20,
-                right: 20,
-                bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
-              ),
-              child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TextField(
-                      controller: _firstNameController,
-                      decoration:
-                          const InputDecoration(labelText: 'First Name'),
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    TextField(
-                      controller: _lastNameController,
-                      decoration: const InputDecoration(labelText: 'Last Name'),
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    ElevatedButton(
-                      child: const Text('Edit'),
-                      onPressed: () async {
-                        final String? firstName = _firstNameController.text;
-                        final String? lastName = _lastNameController.text;
-                        if (firstName != null) {
-                          await _friends.update({
-                            "firstName": firstName,
-                          });
-                          _firstNameController.text = '';
-                        }
-                        if (lastName != null) {
-                          await _friends.update({"lastName": lastName});
-                          _lastNameController.text = '';
-                        }
-                        Navigator.of(context).pop();
-                      },
-                    )
-                  ]));
-        });
+  Future<void> _addFriend() async {
+    DocumentSnapshot<Map<String, dynamic>> snapshotFromUsers =
+        await FirebaseFirestore.instance
+            .collection('usersCollection')
+            .doc(widget.userID)
+            .get();
+    var friendData = snapshotFromUsers.data() as Map<String, dynamic>;
+    await _CurrentUserFriends.doc(friendData['email']).set({
+      "firstName": friendData['firstName'],
+      "lastName": friendData['lastName']
+    });
+    _checkFriend();
+  }
+
+  Future<void> _deleteFriend() async {
+    try {
+      DocumentSnapshot<Map<String, dynamic>> snapshotFromUsers =
+          await FirebaseFirestore.instance
+              .collection('usersCollection')
+              .doc(widget.userID)
+              .get();
+      String email = snapshotFromUsers.data()?['email'];
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('You have successfully deleted!')));
+      await _CurrentUserFriends.doc(email).delete();
+      _checkFriend();
+    } catch (error) {
+      print("Failed to delete friend: $error");
+    }
+  }
+
+  Future<void> _confirmDeleteFriend() async {
+    return showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Delete'),
+          content: const SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('Are you sure you want to delete this friend?'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Delete'),
+              onPressed: () {
+                Navigator.of(context).pop();
+                _deleteFriend();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -153,9 +180,9 @@ class _FriendsProfilePage extends State<FriendsProfilePage> {
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
-                    _editProfile(userFirstName, userLastName);
+                    _isFriend ? _confirmDeleteFriend() : _addFriend();
                   },
-                  child: const Text('Edit Profile'),
+                  child: Text(_isFriend ? 'UnFriend' : 'Friend Request'),
                 ),
               ],
             );

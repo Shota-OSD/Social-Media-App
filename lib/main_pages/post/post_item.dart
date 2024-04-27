@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:social_media_app/main_pages/post/comment_button.dart';
+import '../friends_profile_page.dart';
 
 import '../../util/post_service.dart';
 import 'like_button.dart';
@@ -87,43 +88,52 @@ class _PostItemState extends State<PostItem> {
                 children: [
                   Padding(
                     padding: const EdgeInsets.all(16),
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                          backgroundColor: Colors.grey[300],
-                          // Add user avatar here if available
-                          child: Text(
-                            userName[0].toUpperCase(),
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                    child: GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    FriendsProfilePage(userID: data['userID'])),
+                          );
+                        },
+                        child: Row(
                           children: [
-                            Text(
-                              userName,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
+                            CircleAvatar(
+                              backgroundColor: Colors.grey[300],
+                              // Add user avatar here if available
+                              child: Text(
+                                userName[0].toUpperCase(),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20,
+                                  color: Colors.grey[600],
+                                ),
                               ),
                             ),
-                            const SizedBox(height: 4),
-                            Text(
-                              formattedDateTime,
-                              style: TextStyle(
-                                color: Colors.grey[600],
-                                fontSize: 12,
-                              ),
+                            const SizedBox(width: 10),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  userName,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  formattedDateTime,
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
-                        ),
-                      ],
-                    ),
+                        )),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(16),
