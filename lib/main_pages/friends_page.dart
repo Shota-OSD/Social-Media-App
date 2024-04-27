@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'friends_profile_page.dart';
 
 class FriendsList extends StatefulWidget {
-  const FriendsList({Key? key, required this.auth}) : super(key: key);
+  const FriendsList({super.key, required this.auth});
   final FirebaseAuth auth;
   @override
   State<FriendsList> createState() => _FriendsList();
@@ -56,7 +56,7 @@ class _FriendsList extends State<FriendsList> {
                 height: 20,
               ),
               ElevatedButton(
-                child: const Text('Add to '),
+                child: const Text('Search'),
                 onPressed: () async {
                   final String? email = _nameController.text;
                   if (email != null) {
@@ -128,7 +128,7 @@ class _FriendsList extends State<FriendsList> {
         .get();
     if (userQuery.docs.isNotEmpty) {
       // If a user is found, add the information to the _friends collection
-      var friendData = userQuery.docs.first.data() as Map<String, dynamic>;
+      Map<String, dynamic> friendData = userQuery.docs.first.data();
       await _friends.doc(email).set({
         "firstName": friendData['firstName'],
         "lastName": friendData['lastName']
@@ -162,13 +162,13 @@ class _FriendsList extends State<FriendsList> {
           ),
           actions: <Widget>[
             TextButton(
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text('Delete'),
+              child: const Text('Delete'),
               onPressed: () {
                 Navigator.of(context).pop();
                 _deleteFriend(email, isFriend);
@@ -226,7 +226,7 @@ class _FriendsList extends State<FriendsList> {
                             child: Column(
                               children: [
                                 ListTile(
-                                  contentPadding: EdgeInsets.symmetric(
+                                  contentPadding: const EdgeInsets.symmetric(
                                       vertical: 20, horizontal: 10),
                                   leading: Column(
                                     children: [
@@ -326,7 +326,7 @@ class _FriendsList extends State<FriendsList> {
                             child: Column(
                               children: [
                                 ListTile(
-                                  contentPadding: EdgeInsets.symmetric(
+                                  contentPadding: const EdgeInsets.symmetric(
                                       vertical: 20, horizontal: 10),
                                   leading: Column(
                                     children: [
@@ -335,7 +335,7 @@ class _FriendsList extends State<FriendsList> {
                                         backgroundImage: profileImageUrl != ""
                                             ? NetworkImage(profileImageUrl)
                                                 as ImageProvider<Object>?
-                                            : AssetImage(
+                                            : const AssetImage(
                                                 'assets/images/profile_icon.png'),
                                       ),
                                     ],

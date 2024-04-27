@@ -145,7 +145,7 @@ class _PostItemState extends State<PostItem> {
                             );
                           },
                           errorBuilder: (context, exception, stackTrace) {
-                            return const Icon(Icons.error);
+                            return const Text('');
                           },
                         ),
                         Text(

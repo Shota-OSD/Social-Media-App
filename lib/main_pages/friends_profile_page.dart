@@ -2,14 +2,10 @@ import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import '../util/index.dart';
 
 class FriendsProfilePage extends StatefulWidget {
-  const FriendsProfilePage({Key? key, required this.auth, required this.email})
-      : super(key: key);
+  const FriendsProfilePage({super.key, required this.auth, required this.email});
   final FirebaseAuth auth;
   final String email;
 
@@ -89,7 +85,7 @@ class _FriendsProfilePage extends State<FriendsProfilePage> {
                       height: 20,
                     ),
                     ElevatedButton(
-                      child: Text('Edit'),
+                      child: const Text('Edit'),
                       onPressed: () async {
                         final String? firstName = _firstNameController.text;
                         final String? lastName = _lastNameController.text;
@@ -114,7 +110,7 @@ class _FriendsProfilePage extends State<FriendsProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Profile'),
+        title: const Text('Profile'),
       ),
       body: Center(
         child: FutureBuilder<DocumentSnapshot>(
@@ -126,11 +122,11 @@ class _FriendsProfilePage extends State<FriendsProfilePage> {
             }
 
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return CircularProgressIndicator();
+              return const CircularProgressIndicator();
             }
 
             if (!snapshot.hasData) {
-              return Text('No data found');
+              return const Text('No data found');
             }
             var userData = snapshot.data!.data() as Map<String, dynamic>;
             var userFirstName = userData['firstName'] as String;
@@ -146,10 +142,10 @@ class _FriendsProfilePage extends State<FriendsProfilePage> {
                           as ImageProvider<Object>?
                       : const AssetImage('assets/images/profile_icon.png'),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 Text(
                   "${userFirstName} ${userLastName}",
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 36,
                     fontWeight: FontWeight.bold,
                   ),
