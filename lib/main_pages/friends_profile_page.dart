@@ -144,7 +144,7 @@ class _FriendsProfilePage extends State<FriendsProfilePage> {
                 ),
                 const SizedBox(height: 20),
                 Text(
-                  "${userFirstName} ${userLastName}",
+                  "$userFirstName $userLastName",
                   style: const TextStyle(
                     fontSize: 36,
                     fontWeight: FontWeight.bold,

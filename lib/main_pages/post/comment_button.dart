@@ -113,7 +113,7 @@ class _PostCommentsState extends State<PostComments> {
                 const SizedBox(height: 4),
                 Text(
                   data['message'],
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 16,
                     color: Colors.black,
                   ),
@@ -122,7 +122,7 @@ class _PostCommentsState extends State<PostComments> {
                 Text(
                   DateFormat('dd/MM/yyyy HH:mm')
                       .format((data['timestamp'] as Timestamp).toDate()),
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 12,
                     color: Colors.grey,
                   ),
@@ -149,14 +149,14 @@ class _PostCommentsState extends State<PostComments> {
             child: TextField(
               controller: _messageController,
               obscureText: false,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 hintText: 'Add a comment...',
                 hintStyle: TextStyle(color: Colors.grey),
                 border: InputBorder.none,
               ),
             ),
           ),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           Material(
             color: Colors.blue[100],
             borderRadius: BorderRadius.circular(12),
@@ -165,7 +165,7 @@ class _PostCommentsState extends State<PostComments> {
               borderRadius: BorderRadius.circular(12),
               child: Container(
                 padding: const EdgeInsets.all(8),
-                child: Icon(
+                child: const Icon(
                   Icons.send,
                   color: Colors.blue,
                 ),

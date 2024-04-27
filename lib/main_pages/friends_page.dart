@@ -298,7 +298,7 @@ class _FriendsList extends State<FriendsList> {
         Container(
             height: 400,
             decoration: BoxDecoration(
-              color: Colors.deepOrange[200],
+              color: Colors.red[100],
               borderRadius: BorderRadius.circular(20),
             ),
             child: StreamBuilder(
@@ -377,7 +377,7 @@ class _FriendsList extends State<FriendsList> {
         onPressed: () {
           _addFriend();
         },
-        backgroundColor: Colors.red[100],
+        backgroundColor: Colors.deepOrange[200],
         tooltip: 'Add Friend',
         child: const Icon(Icons.add),
       ),
