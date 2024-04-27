@@ -7,16 +7,18 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../util/index.dart';
 
-class ProfilePage extends StatefulWidget {
-  const ProfilePage({Key? key, required this.auth}) : super(key: key);
+class FriendsProfilePage extends StatefulWidget {
+  const FriendsProfilePage({Key? key, required this.auth, required this.email})
+      : super(key: key);
   final FirebaseAuth auth;
+  final String email;
 
   @override
-  State<ProfilePage> createState() => _ProfilePage();
+  State<FriendsProfilePage> createState() => _FriendsProfilePage();
 }
 
-class _ProfilePage extends State<ProfilePage> {
-  late final DocumentReference _user;
+class _FriendsProfilePage extends State<FriendsProfilePage> {
+  late final DocumentReference _friends;
   File? _imageFile;
   String? profileImageUrl;
   final TextEditingController _firstNameController = TextEditingController();
@@ -25,17 +27,12 @@ class _ProfilePage extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
-    _user = FirebaseFirestore.instance
+    _friends = FirebaseFirestore.instance
         .collection('usersCollection')
-        .doc(widget.auth.currentUser!.uid);
+        .doc(widget.auth.currentUser!.uid)
+        .collection('friends')
+        .doc(widget.email);
     fetchImageUrl();
-  }
-
-  Future logOut() async {
-    FirebaseAuth.instance.signOut();
-    Navigator.of(context).pushReplacement(MaterialPageRoute(
-      builder: (context) => AuthGate(),
-    ));
   }
 
   Future<void> fetchImageUrl() async {
@@ -44,6 +41,8 @@ class _ProfilePage extends State<ProfilePage> {
           .instance
           .collection('usersCollection')
           .doc(widget.auth.currentUser!.uid)
+          .collection('friends')
+          .doc(widget.email)
           .get();
       setState(() {
         profileImageUrl = snapshot.data()?['profileImage'];
@@ -51,41 +50,6 @@ class _ProfilePage extends State<ProfilePage> {
     } catch (error) {
       print("Failed to fetch image URL: $error");
     }
-  }
-
-  Future<void> _pickImage() async {
-    final picker = ImagePicker();
-    final pickedImage = await picker.pickImage(source: ImageSource.gallery);
-    if (pickedImage != null) {
-      setState(() {
-        _imageFile = File(pickedImage.path);
-      });
-    }
-  }
-
-  Future<void> _uploadImage() async {
-    if (_imageFile == null) return;
-
-    final storage = FirebaseStorage.instance;
-    final Reference storageRef =
-        storage.ref().child('images/${DateTime.now()}.png');
-    await storageRef.putFile(_imageFile!);
-
-    final imageUrl = await storageRef.getDownloadURL();
-
-    Map<String, dynamic> newData = {
-      'profileImage': imageUrl,
-    };
-    try {
-      await _user.update(newData);
-      print("Document updated successfully!");
-    } catch (error) {
-      print("Failed to update document: $error");
-    }
-
-    setState(() {
-      _imageFile = null;
-    });
   }
 
   Future<void> _editProfile(String userFirstName, String userLastName) async {
@@ -106,14 +70,6 @@ class _ProfilePage extends State<ProfilePage> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    ElevatedButton(
-                        onPressed: () {
-                          _pickImage();
-                        },
-                        child: const Text('Select Phote')),
-                    const SizedBox(
-                      height: 20,
-                    ),
                     TextField(
                       controller: _firstNameController,
                       decoration:
@@ -137,16 +93,14 @@ class _ProfilePage extends State<ProfilePage> {
                       onPressed: () async {
                         final String? firstName = _firstNameController.text;
                         final String? lastName = _lastNameController.text;
-                        await _uploadImage();
-                        await fetchImageUrl();
                         if (firstName != null) {
-                          await _user.update({
+                          await _friends.update({
                             "firstName": firstName,
                           });
                           _firstNameController.text = '';
                         }
                         if (lastName != null) {
-                          await _user.update({"lastName": lastName});
+                          await _friends.update({"lastName": lastName});
                           _lastNameController.text = '';
                         }
                         Navigator.of(context).pop();
@@ -164,7 +118,7 @@ class _ProfilePage extends State<ProfilePage> {
       ),
       body: Center(
         child: FutureBuilder<DocumentSnapshot>(
-          future: _user.get(),
+          future: _friends.get(),
           builder:
               (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
             if (snapshot.hasError) {
@@ -201,26 +155,12 @@ class _ProfilePage extends State<ProfilePage> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () {
-                        _editProfile(userFirstName, userLastName);
-                      },
-                      child: const Text('Edit Profile'),
-                    ),
-                    SizedBox(
-                      width: 20,
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        logOut();
-                      },
-                      child: const Text('Logout'),
-                    ),
-                  ],
-                )
+                ElevatedButton(
+                  onPressed: () {
+                    _editProfile(userFirstName, userLastName);
+                  },
+                  child: const Text('Edit Profile'),
+                ),
               ],
             );
           },

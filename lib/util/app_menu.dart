@@ -25,7 +25,7 @@ class _AppTabsState extends State<AppTabs> {
     _screens = [
       const ClassFlowHome(),
       FriendsList(auth: widget.auth),
-      const ProfilePage(),
+       ProfilePage(auth: widget.auth),
     ];
   }
 
