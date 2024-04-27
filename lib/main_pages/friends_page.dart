@@ -192,6 +192,19 @@ class _FriendsList extends State<FriendsList> {
     }
   }
 
+  Future<void> moveToProfile(String email) async {
+    var userQuery = await FirebaseFirestore.instance
+        .collection('usersCollection')
+        .where('email', isEqualTo: email)
+        .get();
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) =>
+              FriendsProfilePage(userID: userQuery.docs[0].id)),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -213,13 +226,7 @@ class _FriendsList extends State<FriendsList> {
                       var _ = fetchImageUrl(documentSnapshot);
                       return GestureDetector(
                           onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => FriendsProfilePage(
-                                      auth: widget.auth,
-                                      email: documentSnapshot.id)),
-                            );
+                            moveToProfile(documentSnapshot.id);
                           },
                           child: Card(
                             margin: const EdgeInsets.all(10),
@@ -313,13 +320,7 @@ class _FriendsList extends State<FriendsList> {
                       var _ = fetchImageUrl(documentSnapshot);
                       return GestureDetector(
                           onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => FriendsProfilePage(
-                                      auth: widget.auth,
-                                      email: documentSnapshot.id)),
-                            );
+                            moveToProfile(documentSnapshot.id);
                           },
                           child: Card(
                             margin: const EdgeInsets.all(10),

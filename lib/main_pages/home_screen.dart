@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'topic_posts_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ClassFlowHome extends StatefulWidget {
-  const ClassFlowHome({super.key});
+  const ClassFlowHome({super.key, required this.auth});
+  final FirebaseAuth auth;
 
   @override
   State<ClassFlowHome> createState() => _ClassFlowHomeState();
@@ -35,7 +37,7 @@ class _ClassFlowHomeState extends State<ClassFlowHome> {
 
   @override
   Widget build(BuildContext context) {
-    return const SingleChildScrollView(
+    return SingleChildScrollView(
       child: Padding(
         padding: EdgeInsets.all(20.0),
         child: Center(
@@ -48,6 +50,7 @@ class _ClassFlowHomeState extends State<ClassFlowHome> {
             description:
                 'Here you can find resources, discussions, and announcements related to math topics.',
             colorTheme: Colors.deepOrange,
+            auth: widget.auth,
           ),
           SizedBox(
             height: 20,
@@ -56,6 +59,7 @@ class _ClassFlowHomeState extends State<ClassFlowHome> {
             title: 'Science Topic Board',
             description:
                 'Here you can find resources, discussions, and announcements related to science topics.',
+            auth: widget.auth,
             colorTheme: Colors.lightBlue,
           ),
           SizedBox(
@@ -65,6 +69,7 @@ class _ClassFlowHomeState extends State<ClassFlowHome> {
             title: 'History Topic Board',
             description:
                 'Here you can find resources, discussions, and announcements related to history topics.',
+            auth: widget.auth,
             colorTheme: Colors.brown,
           ),
           SizedBox(
@@ -74,6 +79,7 @@ class _ClassFlowHomeState extends State<ClassFlowHome> {
             title: 'English Topic Board',
             description:
                 'Here you can find resources, discussions, and announcements related to english topics.',
+            auth: widget.auth,
             colorTheme: Colors.greenAccent,
           ),
           TopicBoard(
@@ -81,10 +87,12 @@ class _ClassFlowHomeState extends State<ClassFlowHome> {
             description:
                 'Here you can share your art, and interact with others!',
             colorTheme: Color.fromARGB(255, 224, 202, 0),
+            auth: widget.auth,
           ),
           TopicBoard(
             title: 'General Board',
             description: 'Here you can discuss any general topics!',
+            auth: widget.auth,
             colorTheme: Colors.deepPurpleAccent,
           ),
         ])),
@@ -97,11 +105,13 @@ class TopicBoard extends StatelessWidget {
   final String title;
   final String description;
   final Color colorTheme;
+  final FirebaseAuth auth;
   const TopicBoard(
       {super.key,
       required this.title,
       required this.description,
-      required this.colorTheme});
+      required this.colorTheme,
+      required this.auth});
 
   @override
   Widget build(BuildContext context) {
@@ -152,9 +162,8 @@ class TopicBoard extends StatelessWidget {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => TopicRoom(
-                            topicID: title,
-                          )));
+                      builder: (context) =>
+                          TopicRoom(topicID: title, auth: auth)));
             },
             style: ElevatedButton.styleFrom(
               padding:
