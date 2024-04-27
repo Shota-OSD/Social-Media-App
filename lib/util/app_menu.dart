@@ -28,7 +28,7 @@ class _AppTabsState extends State<AppTabs> {
       ClassFlowHome(),
       AddPost(),
       FriendsList(auth: widget.auth),
-      ProfilePage(),
+      ProfilePage(auth: widget.auth),
     ];
   }
 
