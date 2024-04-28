@@ -91,11 +91,11 @@ class _FriendsProfilePage extends State<FriendsProfilePage> {
               .get();
       String email = snapshotFromUsers.data()?['email'];
       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('You have successfully deleted!')));
+          const SnackBar(content: Text('You have successfully unfollowed.')));
       await _CurrentUserFriends.doc(email).delete();
       _checkFriend();
     } catch (error) {
-      print("Failed to delete friend: $error");
+      print("Failed to unfollow user: $error");
     }
   }
 
@@ -105,11 +105,11 @@ class _FriendsProfilePage extends State<FriendsProfilePage> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Confirm Delete'),
+          title: const Text('Confirm Unfollow'),
           content: const SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
-                Text('Are you sure you want to delete this friend?'),
+                Text('Are you sure you want to unfollow this user?'),
               ],
             ),
           ),
@@ -121,7 +121,7 @@ class _FriendsProfilePage extends State<FriendsProfilePage> {
               },
             ),
             TextButton(
-              child: const Text('Delete'),
+              child: const Text('Unfollow'),
               onPressed: () {
                 Navigator.of(context).pop();
                 _deleteFriend();
@@ -182,7 +182,7 @@ class _FriendsProfilePage extends State<FriendsProfilePage> {
                   onPressed: () {
                     _isFriend ? _confirmDeleteFriend() : _addFriend();
                   },
-                  child: Text(_isFriend ? 'UnFriend' : 'Friend Request'),
+                  child: Text(_isFriend ? 'Unfollow' : 'Follow'),
                 ),
               ],
             );

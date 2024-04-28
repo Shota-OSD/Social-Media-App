@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -58,59 +60,56 @@ class _FriendsList extends State<FriendsList> {
               ElevatedButton(
                 child: const Text('Search'),
                 onPressed: () async {
-                  final String? email = _nameController.text;
-                  if (email != null) {
-                    // Search for users by email from the Firestore users collection
-                    var userQuery = await FirebaseFirestore.instance
+                  final String email = _nameController.text;
+                  // Search for users by email from the Firestore users collection
+                  var userQuery = await FirebaseFirestore.instance
+                      .collection('usersCollection')
+                      .where('email', isEqualTo: email)
+                      .get();
+                  if (userQuery.docs.isNotEmpty) {
+                    // If a user is found, add the information to the _friends collection
+                    var friendData = userQuery.docs.first.data();
+                    await _friends.doc(email).set({
+                      "firstName": friendData['firstName'],
+                      "lastName": friendData['lastName']
+                    });
+                    // Add userData to friendRequest collection
+                    var userDataSnapshot = await FirebaseFirestore.instance
                         .collection('usersCollection')
-                        .where('email', isEqualTo: email)
+                        .doc(widget.auth.currentUser!.uid)
                         .get();
-                    if (userQuery.docs.isNotEmpty) {
-                      // If a user is found, add the information to the _friends collection
-                      var friendData =
-                          userQuery.docs.first.data() as Map<String, dynamic>;
-                      await _friends.doc(email).set({
-                        "firstName": friendData['firstName'],
-                        "lastName": friendData['lastName']
-                      });
-                      // Add userData to friendRequest collection
-                      var userDataSnapshot = await FirebaseFirestore.instance
-                          .collection('usersCollection')
-                          .doc(widget.auth.currentUser!.uid)
-                          .get();
-                      Map<String, dynamic> userData =
-                          userDataSnapshot.data() as Map<String, dynamic>;
-                      // Create friendRequest collection if not exists and add userData
-                      var friendRequestCollection = FirebaseFirestore.instance
-                          .collection('usersCollection')
-                          .doc(userQuery.docs.first.id)
-                          .collection('friendRequests');
-                      // Set userData to friendRequest collection
-                      await friendRequestCollection.doc(userData['email']).set({
-                        "firstName": userData['firstName'],
-                        "lastName": userData['lastName']
-                      });
-                      _nameController.text = '';
-                      Navigator.of(context).pop();
-                    } else {
-                      // If a user is not found, display an error, etc.
-                      showDialog(
-                        context: ctx,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: const Text('User not found!'),
-                            actions: <Widget>[
-                              TextButton(
-                                child: const Text('OK'),
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    }
+                    Map<String, dynamic> userData =
+                        userDataSnapshot.data() as Map<String, dynamic>;
+                    // Create friendRequest collection if not exists and add userData
+                    var friendRequestCollection = FirebaseFirestore.instance
+                        .collection('usersCollection')
+                        .doc(userQuery.docs.first.id)
+                        .collection('friendRequests');
+                    // Set userData to friendRequest collection
+                    await friendRequestCollection.doc(userData['email']).set({
+                      "firstName": userData['firstName'],
+                      "lastName": userData['lastName']
+                    });
+                    _nameController.text = '';
+                    Navigator.of(context).pop();
+                  } else {
+                    // If a user is not found, display an error, etc.
+                    showDialog(
+                      context: ctx,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text('User not found!'),
+                          actions: <Widget>[
+                            TextButton(
+                              child: const Text('OK'),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    );
                   }
                 },
               )
@@ -139,9 +138,9 @@ class _FriendsList extends State<FriendsList> {
 
 // Deleteing a friend by email
   Future<void> _deleteFriend(String email, bool isFriend) async {
-    ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('You have successfully deleted!')));
-    await isFriend
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text('Unfollowed user')));
+    isFriend
         ? _friends.doc(email).delete()
         : _friendRequests.doc(email).delete();
   }
@@ -152,11 +151,11 @@ class _FriendsList extends State<FriendsList> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Confirm Delete'),
+          title: const Text('Confirm Unfollow'),
           content: const SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
-                Text('Are you sure you want to delete this friend?'),
+                Text('Are you sure you want to unfollow this user?'),
               ],
             ),
           ),
@@ -168,7 +167,7 @@ class _FriendsList extends State<FriendsList> {
               },
             ),
             TextButton(
-              child: const Text('Delete'),
+              child: const Text('Unfollow'),
               onPressed: () {
                 Navigator.of(context).pop();
                 _deleteFriend(email, isFriend);
@@ -212,7 +211,7 @@ class _FriendsList extends State<FriendsList> {
         title: const Text("Friends List"),
       ),
       body: ListView(children: [
-        Container(
+        SizedBox(
             height: 400,
             child: StreamBuilder(
               stream: _friends.snapshots(),
@@ -293,7 +292,7 @@ class _FriendsList extends State<FriendsList> {
               height: 20,
             ),
             Text(
-              " Friend Requests",
+              "Follow Back?",
               style: TextStyle(
                   color: Color.fromARGB(255, 65, 64, 64), fontSize: 30),
             ),
@@ -368,8 +367,17 @@ class _FriendsList extends State<FriendsList> {
                     },
                   );
                 }
-                return const Center(
-                  child: CircularProgressIndicator(),
+                return const Column(
+                  children: [
+                    SizedBox(height: 20),
+                    Text(
+                      "No users to follow back...",
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 65, 64, 64),
+                        fontSize: 20,
+                      ),
+                    ),
+                  ],
                 );
               },
             )),
